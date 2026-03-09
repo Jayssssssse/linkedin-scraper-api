@@ -42,9 +42,7 @@ def login_linkedin(driver):
         
         return True
     except Exception as e:
-        print(f"Login failed: {e}")
-        return False
-
+        time.sleep(10)  # Wait longer after login to avoid detection
 class LinkedInProfile(BaseModel):
     profile_url: str
 
@@ -60,7 +58,11 @@ async def scrape_linkedin(profile: LinkedInProfile):
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_
+                                          chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        chrome_options.add_experimental_option('useAutomationExtension', False)options)
         driver.get(profile.profile_url)
         time.sleep(3)
         
