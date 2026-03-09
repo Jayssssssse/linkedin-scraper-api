@@ -6,8 +6,44 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import os
 
 app = FastAPI(title="LinkedIn Scraper API")
+
+def login_linkedin(driver):
+    """Login to LinkedIn using credentials from environment variables"""
+    try:
+        # Get credentials from environment
+        email = os.getenv('LINKEDIN_EMAIL')
+        password = os.getenv('LINKEDIN_PASSWORD')
+        
+        if not email or not password:
+            print("Warning: LinkedIn credentials not found in environment")
+            return False
+        
+        # Navigate to LinkedIn login page
+        driver.get("https://www.linkedin.com/login")
+        time.sleep(3)
+        
+        # Enter email
+        email_field = driver.find_element(By.ID, "username")
+        email_field.send_keys(email)
+        
+        # Enter password
+        password_field = driver.find_element(By.ID, "password")
+        password_field.send_keys(password)
+        
+        # Click login button
+        login_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+        login_button.click()
+        
+        # Wait for login to complete
+        time.sleep(5)
+        
+        return True
+    except Exception as e:
+        print(f"Login failed: {e}")
+        return False
 
 class LinkedInProfile(BaseModel):
     profile_url: str
@@ -29,6 +65,11 @@ async def scrape_linkedin(profile: LinkedInProfile):
         time.sleep(3)
         
         # Basic scraping - get page title
+                
+        # Login to LinkedIn
+        login_success = login_linkedin(driver)
+        if not login_success:
+            print("Warning: LinkedIn login failed, continuing without auth")
                 
         # Extract profile data from LinkedIn page
         from selenium.webdriver.common.by import By
