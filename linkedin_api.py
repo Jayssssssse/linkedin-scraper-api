@@ -29,6 +29,48 @@ async def scrape_linkedin(profile: LinkedInProfile):
         time.sleep(3)
         
         # Basic scraping - get page title
+                
+        # Extract profile data from LinkedIn page
+        from selenium.webdriver.common.by import By
+        from selenium.common.exceptions import NoSuchElementException
+        
+        try:
+            # Wait for page to load
+            time.sleep(2)
+            
+            # Extract name
+            try:
+                name_element = driver.find_element(By.CSS_SELECTOR, "h1.text-heading-xlarge")
+                full_name = name_element.text.strip()
+            except NoSuchElementException:
+                full_name = ""
+            
+            # Extract headline/title
+            try:
+                headline_element = driver.find_element(By.CSS_SELECTOR, "div.text-body-medium")
+                headline = headline_element.text.strip()
+            except NoSuchElementException:
+                headline = ""
+            
+            # Extract location
+            try:
+                location_element = driver.find_element(By.CSS_SELECTOR, "span.text-body-small.inline.t-black--light.break-words")
+                location = location_element.text.strip()
+            except NoSuchElementException:
+                location = ""
+            
+            # Extract current company (from experience section)
+            try:
+                company_element = driver.find_element(By.CSS_SELECTOR, "#experience + div div.display-flex.flex-column.full-width div.display-flex.flex-column div span[aria-hidden='true']")
+                company_name = company_element.text.strip()
+            except NoSuchElementException:
+                company_name = ""
+        except Exception as e:
+            print(f"Error extracting profile data: {e}")
+            full_name = ""
+            headline = ""
+            location = ""
+            company_name = ""
         title = driver.title
         
         driver.quit()
@@ -37,6 +79,11 @@ async def scrape_linkedin(profile: LinkedInProfile):
             "status": "success",
             "url": profile.profile_url,
             "page_title": title,
+                        "fullName": full_name,
+            "headline": headline,
+            "location": location,
+            "companyName": company_name,
+            "profileUrl": profile.profile_url,
             "timestamp": time.time()
         }
     except Exception as e:
